@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Biologia - Quiz ABCD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0b0d0f; color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 500; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; overflow-x: hidden; max-width: 100vw; }
+        
+        body::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none; z-index: 0;
+        }
+        .glow {
+            position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%); width: 100%; max-width: 600px; height: 300px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, rgba(76, 175, 80, 0.05) 50%, transparent 80%);
+            filter: blur(80px); pointer-events: none; z-index: 0;
+        }
+
+        header { position: relative; z-index: 10; width: 100%; display: flex; justify-content: center; padding: 20px 15px; }
+        .nav-capsule {
+            background: rgba(18, 22, 26, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 950px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: #fff; text-decoration: none; }
+        .brand-icon { width: 10px; height: 10px; background: #00e5ff; border-radius: 50%; box-shadow: 0 0 10px #00e5ff; }
+        .nav-links { display: flex; gap: 18px; list-style: none; }
+        .nav-links a { color: #9aa0a6; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #00e5ff; }
+        .nav-btn {
+            background: rgba(0, 229, 255, 0.1); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.3);
+            padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #00e5ff; color: #0b0d0f; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+
+        .tab-content { position: relative; z-index: 10; display: block; width: 100%; max-width: 900px; padding: 10px 15px 60px 15px; }
+        .quiz-container { background: rgba(18, 22, 26, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); text-align: center; margin: 10px auto; position: relative; backdrop-filter: blur(12px); }
+        
+        .quiz-reset-btn { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .quiz-reset-btn:hover { background: rgba(0, 229, 255, 0.1); border-color: #00e5ff; color: #00e5ff; }
+
+        h1 { color: #fff; margin-top: 0; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+        
+        .translation-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 14px; margin-bottom: 24px; }
+        .translation-label { font-size: 13px; color: #9aa0a6; margin-bottom: 6px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .translation-value { font-size: 24px; font-weight: 700; color: #00e5ff; word-break: break-word; }
+        
+        .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .option-btn { background: rgba(255, 255, 255, 0.04); color: white; border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px 18px; font-family: inherit; font-weight: 600; font-size: 15px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { background: rgba(0, 229, 255, 0.08); border-color: rgba(0, 229, 255, 0.4); color: #00e5ff; }
+        .option-btn.correct-ans { background-color: rgba(76, 175, 80, 0.2) !important; border-color: #4CAF50 !important; color: #fff !important; }
+        .option-btn.wrong-ans { background-color: rgba(244, 67, 54, 0.2) !important; border-color: #f44336 !important; }
+        
+        .action-buttons-wrapper { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; width: 100%; }
+        .btn-action { background: rgba(0, 229, 255, 0.12); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.4); padding: 14px 24px; font-family: inherit; font-weight: 700; font-size: 16px; border-radius: 12px; cursor: pointer; transition: all 0.3s; width: 100%; max-width: 260px; }
+        .btn-action:hover { background: #00e5ff; color: #0b0d0f; box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+        
+        .btn-next { background: rgba(33, 150, 243, 0.15) !important; color: #2196F3 !important; border-color: rgba(33, 150, 243, 0.4) !important; }
+        .btn-next:hover { background: #2196F3 !important; color: #fff !important; box-shadow: 0 0 20px rgba(33, 150, 243, 0.4) !important; }
+        
+        .btn-skip { background: rgba(255, 255, 255, 0.05) !important; color: #aaa !important; border-color: rgba(255, 255, 255, 0.15) !important; }
+        .btn-skip:hover { background: rgba(255, 255, 255, 0.15) !important; color: #fff !important; box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; }
+        
+        .btn-end { background: rgba(229, 57, 53, 0.15) !important; color: #e53935 !important; border-color: rgba(229, 57, 53, 0.4) !important; }
+        .btn-end:hover { background: #e53935 !important; color: #fff !important; box-shadow: 0 0 20px rgba(229, 57, 53, 0.4) !important; }
+        
+        .btn-retry-wrong { background: rgba(255, 152, 0, 0.15) !important; color: #ff9800 !important; border-color: rgba(255, 152, 0, 0.4) !important; }
+        .btn-retry-wrong:hover { background: #ff9800 !important; color: #fff !important; box-shadow: 0 0 20px rgba(255, 152, 0, 0.4) !important; }
+
+        .feedback { margin-top: 20px; font-size: 18px; font-weight: 600; min-height: 35px; line-height: 1.4; }
+        .correct { color: #4CAF50; }
+        .incorrect { color: #f44336; }
+        .skipped-text { color: #9aa0a6; }
+        .counter { font-size: 14px; color: #9aa0a6; margin-bottom: 10px; font-weight: 600; }
+
+        .summary-container { text-align: left; margin-top: 15px; }
+        .summary-title { font-size: 20px; color: #fff; font-weight: 700; text-align: center; margin-bottom: 15px; }
+        .summary-score { font-size: 18px; text-align: center; margin-bottom: 25px; color: #00e5ff; font-weight: 700; }
+        .summary-list { background: rgba(255, 255, 255, 0.02); border-radius: 12px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; }
+        .summary-item { background: rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #555; gap: 10px; flex-wrap: wrap; }
+        .summary-item.perfect { border-left-color: #4CAF50; }
+        .summary-item.failed { border-left-color: #e53935; }
+        .summary-item.skipped { border-left-color: #888; background: rgba(255,255,255,0.02); }
+        .summary-item-content { flex-grow: 1; font-size: 15px; line-height: 1.4; }
+        .summary-num { font-weight: bold; color: #888; margin-right: 6px; }
+        .summary-word { font-weight: bold; font-size: 16px; color: #fff; }
+        .summary-score-badge { font-size: 15px; font-weight: 700; padding: 5px 12px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .summary-details { font-size: 13px; margin-top: 5px; color: #aaa; }
+        .text-correct { color: #4CAF50; font-weight: bold; }
+        .text-wrong { color: #e53935; font-weight: bold; text-decoration: line-through; }
+        .text-skipped { color: #888; }
+        .summary-footer-bar { margin-top: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        @media(max-width: 900px) { .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+    <div class="glow"></div>
+
+    <header>
+        <nav class="nav-capsule">
+            <a href="index.html" class="brand"><span class="brand-icon"></span>Biologia</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Strona główna</a></li>
+                <li><a href="quiz_wpisywany.html">Quiz Wpisz</a></li>
+                <li><a href="quiz_abcd.html" class="active">Quiz ABCD</a></li>
+            </ul>
+            <a href="tabelka.html" class="nav-btn">Baza Wiedzy</a>
+        </nav>
+    </header>
+
+    <div class="tab-content">
+        <div class="quiz-container" id="abcd-quiz-box">
+            <a href="#" class="quiz-reset-btn" onclick="restartAbcdQuiz(); return false;" title="Resetuj">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                </svg>
+            </a>
+            <h1>Quiz: Wybierz definicję</h1>
+            <div class="counter" id="abcd-counter-text"></div>
+            <div class="counter" id="abcd-progress-text" style="color: #00e5ff; margin-top: -6px; margin-bottom: 15px;"></div>
+            
+            <div class="translation-box">
+                <div class="translation-label">Zagadnienie</div>
+                <div class="translation-value" id="abcd-val-translation">-</div>
+            </div>
+
+            <div class="options-grid" id="abcd-options-container"></div>
+
+            <div class="action-buttons-wrapper">
+                <button class="btn-action btn-skip" id="abcd-skip-btn" onclick="skipAbcdQuestion()">Pomiń pytanie</button>
+                <button class="btn-action btn-end" id="abcd-end-btn" onclick="showAbcdSummary()">Zakończ quiz</button>
+                <button class="btn-action btn-next" id="abcd-next-btn" onclick="loadNextAbcdQuestion()" style="display: none;">Następne pytanie</button>
+            </div>
+
+            <div class="feedback" id="abcd-feedback"></div>
+        </div>
+    </div>
+
+    <script src="historyData.js"></script>
+    <script>
+        let abcdTotalPool = [...historyData];
+        let abcdAvailableWords = [], abcdCurrentWord = {}, abcdScoreCorrect = 0, abcdQuestionNumber = 0;
+        let abcdSkippedCount = 0, abcdHistory = [];
+
+        function initAbcdQueue(customPool = null) { 
+            abcdTotalPool = customPool ? [...customPool] : [...historyData];
+            abcdAvailableWords = [...abcdTotalPool].sort(() => Math.random() - 0.5); 
+            abcdQuestionNumber = 0; abcdScoreCorrect = 0; abcdSkippedCount = 0; abcdHistory = [];
+        }
+
+        function loadNextAbcdQuestion() {
+            if (!abcdAvailableWords.length) { showAbcdSummary(); return; }
+            abcdQuestionNumber++;
+            abcdCurrentWord = abcdAvailableWords.pop();
+
+            document.getElementById("abcd-feedback").innerHTML = "";
+            document.getElementById("abcd-next-btn").style.display = "none";
+            document.getElementById("abcd-skip-btn").style.display = "inline-block";
+            document.getElementById("abcd-end-btn").style.display = "inline-block";
+            
+            document.getElementById("abcd-val-translation").innerText = abcdCurrentWord.title;
+            document.getElementById("abcd-counter-text").innerText = `Poprawne: ${abcdScoreCorrect} / ${abcdHistory.length}`;
+            document.getElementById("abcd-progress-text").innerText = `Pytanie: ${abcdQuestionNumber} / ${abcdTotalPool.length} | Pominięto: ${abcdSkippedCount}`;
+
+            let others = historyData.filter(w => w.id !== abcdCurrentWord.id).sort(() => Math.random() - 0.5);
+            
+            let options = [
+                { text: abcdCurrentWord.desc, isCorrect: true },
+                { text: others[0].desc, isCorrect: false },
+                { text: others[1].desc, isCorrect: false }
+            ].sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById("abcd-options-container");
+            container.innerHTML = "";
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerText = opt.text;
+                btn.onclick = () => handleAbcdAnswer(btn, opt.isCorrect, abcdCurrentWord.desc);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAbcdAnswer(selectedBtn, isCorrect, correctAnswerStr) {
+            document.querySelectorAll(".option-btn").forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === correctAnswerStr) btn.classList.add("correct-ans");
+            });
+
+            abcdHistory.push({ item: abcdCurrentWord, userAnswer: selectedBtn.innerText, correctAnswer: correctAnswerStr, isCorrect, skipped: false });
+
+            const feedbackEl = document.getElementById("abcd-feedback");
+            if (isCorrect) {
+                abcdScoreCorrect++;
+                feedbackEl.innerHTML = "<span class='correct'>Dobrze! 🎉</span>";
+            } else {
+                selectedBtn.classList.add("wrong-ans");
+                feedbackEl.innerHTML = `<span class='incorrect'>Źle. Poprawna definicja to:<br><strong>${correctAnswerStr}</strong></span>`;
+            }
+
+            document.getElementById("abcd-counter-text").innerText = `Poprawne: ${abcdScoreCorrect} / ${abcdHistory.length}`;
+            document.getElementById("abcd-skip-btn").style.display = "none";
+            document.getElementById("abcd-end-btn").style.display = "inline-block";
+            document.getElementById("abcd-next-btn").style.display = "inline-block";
+        }
+
+        function skipAbcdQuestion() {
+            abcdSkippedCount++;
+            const correctAnswerStr = abcdCurrentWord.desc;
+
+            document.querySelectorAll(".option-btn").forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === correctAnswerStr) btn.classList.add("correct-ans");
+            });
+
+            abcdHistory.push({ item: abcdCurrentWord, userAnswer: "(Pominięto)", correctAnswer: correctAnswerStr, isCorrect: false, skipped: true });
+
+            document.getElementById("abcd-feedback").innerHTML = `<span class='skipped-text'>Pominięto pytanie. Poprawna definicja została zaznaczona.</span>`;
+            document.getElementById("abcd-skip-btn").style.display = "none";
+            document.getElementById("abcd-end-btn").style.display = "inline-block";
+            document.getElementById("abcd-next-btn").style.display = "inline-block";
+        }
+
+        function showAbcdSummary() {
+            const box = document.getElementById("abcd-quiz-box");
+            let retryWords = [];
+
+            let listHtml = abcdHistory.map((h, idx) => {
+                if (h.skipped || !h.isCorrect) retryWords.push(h.item);
+                if (h.skipped) {
+                    return `
+                        <div class="summary-item skipped">
+                            <div class="summary-item-content">
+                                <div><span class="summary-num">${idx + 1}.</span><span class="summary-word">${h.item.title}</span></div>
+                                <div class="summary-details"><span class="text-skipped">${h.correctAnswer}</span></div>
+                            </div>
+                            <div class="summary-score-badge">0/1</div>
+                        </div>
+                    `;
+                }
+                const statusClass = h.isCorrect ? 'perfect' : 'failed';
+                let detailsHtml = h.isCorrect 
+                    ? `<span class="text-correct">${h.userAnswer}</span>`
+                    : `<span class="text-wrong">${h.userAnswer}</span> → <span class="text-correct">${h.correctAnswer}</span>`;
+
+                return `
+                    <div class="summary-item ${statusClass}">
+                        <div class="summary-item-content">
+                            <div><span class="summary-num">${idx + 1}.</span><span class="summary-word">${h.item.title}</span></div>
+                            <div class="summary-details">${detailsHtml}</div>
+                        </div>
+                        <div class="summary-score-badge">${h.isCorrect ? '1/1' : '0/1'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const percent = abcdHistory.length > 0 ? Math.round((abcdScoreCorrect / abcdHistory.length) * 100) : 0;
+            window.abcdWrongWordsCache = retryWords;
+
+            let retryBtnHtml = retryWords.length > 0 
+                ? `<button class="btn-action btn-retry-wrong" onclick="retryAbcdWrongWords()">Powtórz błędne (${retryWords.length})</button>`
+                : '';
+
+            box.innerHTML = `
+                <a href="#" class="quiz-reset-btn" onclick="restartAbcdQuiz(); return false;" title="Resetuj">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                </a>
+                <h1>Koniec Quizu! 🎉</h1>
+                <div class="summary-score">Twój wynik całkowity: <strong>${abcdScoreCorrect} / ${abcdHistory.length}</strong> (${percent}%)</div>
+                <div class="summary-container">
+                    <div class="summary-title">Podsumowanie odpowiedzi:</div>
+                    <div class="summary-list">${listHtml}</div>
+                </div>
+                <div class="summary-footer-bar">
+                    <button class="btn-action" onclick="restartAbcdQuiz()">Zagraj ponownie</button>
+                    ${retryBtnHtml}
+                </div>
+            `;
+        }
+
+        function retryAbcdWrongWords() {
+            if (!window.abcdWrongWordsCache || !window.abcdWrongWordsCache.length) return;
+            const wrongPool = [...window.abcdWrongWordsCache];
+
+            const box = document.getElementById("abcd-quiz-box");
+            box.innerHTML = `
+                <a href="#" class="quiz-reset-btn" onclick="restartAbcdQuiz(); return false;" title="Resetuj">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                </a>
+                <h1>Quiz: Wybierz definicję</h1>
+                <div class="counter" id="abcd-counter-text"></div>
+                <div class="counter" id="abcd-progress-text" style="color: #00e5ff; margin-top: -6px; margin-bottom: 15px;"></div>
+                
+                <div class="translation-box">
+                    <div class="translation-label">Zagadnienie</div>
+                    <div class="translation-value" id="abcd-val-translation">-</div>
+                </div>
+
+                <div class="options-grid" id="abcd-options-container"></div>
+
+                <div class="action-buttons-wrapper">
+                    <button class="btn-action btn-skip" id="abcd-skip-btn" onclick="skipAbcdQuestion()">Pomiń pytanie</button>
+                    <button class="btn-action btn-end" id="abcd-end-btn" onclick="showAbcdSummary()">Zakończ quiz</button>
+                    <button class="btn-action btn-next" id="abcd-next-btn" onclick="loadNextAbcdQuestion()" style="display: none;">Następne pytanie</button>
+                </div>
+
+                <div class="feedback" id="abcd-feedback"></div>
+            `;
+
+            initAbcdQueue(wrongPool);
+            loadNextAbcdQuestion();
+        }
+
+        function restartAbcdQuiz() { location.reload(); }
+
+        window.onload = function() {
+            initAbcdQueue();
+            loadNextAbcdQuestion();
+        };
+    </script>
+</body>
+</html>
